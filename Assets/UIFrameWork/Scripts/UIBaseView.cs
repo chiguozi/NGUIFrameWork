@@ -37,9 +37,19 @@ public class UIBaseView : MonoBehaviour
     public Bounds uiBounds = new Bounds(Vector3.zero, Vector3.zero);
     protected Vector3 localPos = Vector3.zero;
 
+    GameObject _parentGo;
+    public GameObject parentGo
+    {
+        get
+        {
+            return _parentGo;
+        }
+        set { _parentGo = value; }
+    }
+
     protected virtual void Awake()
     {
-        uiName = this.GetType().Name; 
+        uiName = GetType().Name; 
     }
 
     //参数和接口由UI各自提供，基类不提供通用参数处理
@@ -57,6 +67,13 @@ public class UIBaseView : MonoBehaviour
 
     protected virtual void LoadComplete(object obj)
     {
+        if(obj == null)
+        {
+            Debug.LogError("加载" + uiName + "失败");
+            return; 
+        }
+        var go = obj as GameObject;
+
     }
 
 }
