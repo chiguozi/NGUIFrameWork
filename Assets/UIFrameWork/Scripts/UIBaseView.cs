@@ -67,13 +67,55 @@ public class UIBaseView : MonoBehaviour
 
     protected virtual void LoadComplete(object obj)
     {
-        if(obj == null)
+        if (obj == null)
         {
             Debug.LogError("加载" + uiName + "失败");
-            return; 
+            return;
         }
-        var go = obj as GameObject;
+        InitUIGameObject(obj);
+        InitView();
+        Refresh();
+    }
 
+    protected virtual void Refresh()
+    { }
+
+    protected virtual void InitView()
+    { }
+
+    public virtual void OnHide()
+    { }
+
+    public void UpdateUI()
+    {
+        if (isLoadComplete)
+            Refresh();
+    }
+
+    protected virtual void InitUIGameObject(object obj)
+    {
+        var go = obj as GameObject;
+        uiGameObject = NGUITools.AddChild(parentGo, go);
+        uiTransform = uiGameObject.transform;
+        uiGameObject.SetActive(_isActive);
+        uiBounds = NGUIMath.CalculateRelativeWidgetBounds(uiTransform, true);
+        uiTransform.localPosition = localPos;
+        loadingState = LoadingState.Finish;
+    }
+
+
+    protected virtual void OnDestroy()
+    {
+        if (uiGameObject != null)
+            GameObject.Destroy(uiGameObject);
+    }
+
+    public virtual void SetPosition(float x, float y)
+    {
+        localPos.x = x;
+        localPos.y = y;
+        if (isLoadComplete)
+            uiTransform.localPosition = localPos;
     }
 
 }
