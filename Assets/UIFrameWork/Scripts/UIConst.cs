@@ -27,4 +27,7 @@ public class UIConst
     };
 
 
+    public static int UI_WIDTH = 1280;
+    public static int UI_HEIGHT = 720;
+
 }
