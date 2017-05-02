@@ -35,9 +35,8 @@ public class UIBasePanel : UIBaseView
 
         InitView();
         SortDepth();
-        Refresh();
+        DoShowOrHide();
     }
-
     //@todo
     // 1. tween
     // 2. panelType
@@ -113,10 +112,19 @@ public class UIBasePanel : UIBaseView
     {
         if (!isLoadComplete)
             return;
-        //UILayer layer = UIManager.Instance.GetUILayer(uiLayerConfig);
-        //layer.SortDepth();
+        UILayer layer = UIManager.Instance.GetLayer(uiLayer);
+        layer.SortDepth();
     }
 
+    protected override void OnBeforeHide()
+    {
+        base.OnBeforeHide();
+    }
+
+    protected override void OnBeforeShow()
+    {
+        base.OnBeforeShow();
+    }
 
     public int GetChildIndex(UIBaseView com)
     {
@@ -127,7 +135,7 @@ public class UIBasePanel : UIBaseView
         UIBaseView com = uiGameObject.AddComponent<T>();
         childList.Add(com);
         com.parentGo = uiGameObject;
-        com.OnShow();
+        com.isActive = true;
         return com as T;
     }
 
@@ -136,7 +144,7 @@ public class UIBasePanel : UIBaseView
         UIBaseView com = uiGameObject.AddComponent<T>();
         childList.Insert(index, com);
         com.parentGo = uiGameObject;
-        com.OnShow();
+        com.isActive = true;
         return com as T;
     }
 
@@ -145,7 +153,7 @@ public class UIBasePanel : UIBaseView
         UIBaseView com = uiGameObject.AddComponent(type) as UIBaseView;
         childList.Add(com);
         com.parentGo = uiGameObject;
-        com.OnShow();
+        com.isActive = true;
         return com;
     }
 
@@ -154,7 +162,7 @@ public class UIBasePanel : UIBaseView
         UIBaseView com = uiGameObject.AddComponent(type) as UIBaseView;
         childList.Insert(index, com);
         com.parentGo = uiGameObject;
-        com.OnShow();
+        com.isActive = true;
         return com;
     }
 
@@ -162,8 +170,20 @@ public class UIBasePanel : UIBaseView
     {
         if (!childList.Remove(com))
             return;
-        com.OnHide();
+        com.isActive = false;
         GameObject.DestroyObject(com);
+    }
+
+    //@todo 挪到上层  或者通过事件触发
+    public void SetPanelToLayerTop()
+    {
+        UILayer layer = UIManager.Instance.GetLayer(uiLayer);
+        if (layer.IsOnTop(this))
+            return;
+
+        layer.RemoveChild(this);
+        layer.AddChild(this);
+        SortDepth();
     }
 }
 

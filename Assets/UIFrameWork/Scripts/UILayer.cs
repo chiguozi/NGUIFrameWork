@@ -25,7 +25,7 @@ public class UILayer : MonoBehaviour
         {
             _layer = value;
             if (_panel == null)
-                _panel = GameObject.GetComponent<UIPanel>();
+                _panel = GameObject.AddComponent<UIPanel>();
             _panel.depth = ( (int)_layer - 1 ) * UIConst.LayerDepth;
             _maxDepth = (int)_layer * UIConst.LayerDepth;
             //需要宏吗？

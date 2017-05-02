@@ -11,7 +11,7 @@ public class UIBaseView : MonoBehaviour
     }
 
     protected string uiName = "";
-    protected string uiPath = "";
+    protected string uiPath = "prefab/";
     public string UIName { get { return uiName; } }
 
     protected bool _isActive = false;
@@ -22,15 +22,47 @@ public class UIBaseView : MonoBehaviour
         {
             //如果UI需要强制刷新active  可以将这个判断去掉
             if (_isActive == value)
+            {
+                DoShowOrHide();
                 return;
+            }
+                
             _isActive = value;
+            if (uiGameObject == null)
+            {
+                loadingState = LoadingState.Loading;
+                ResourceManager.LoadAsset(uiPath + uiName, LoadComplete);
+                return;
+            }
+
             if (uiGameObject != null)
                 uiGameObject.SetActive(_isActive);
+            DoShowOrHide();
         }
     }
 
+    protected void DoShowOrHide()
+    {
+        if (isActive)
+        {
+            OnBeforeShow();
+            OnShow();
+        }
+        else
+        {
+            OnBeforeHide();
+            OnHide();
+        }
+    }
+
+    protected virtual void OnBeforeShow()
+    { }
+
+    protected virtual void OnBeforeHide()
+    { }
+
     protected LoadingState loadingState = LoadingState.None;
-    public bool isLoadComplete { get { return loadingState == LoadingState.Loading; } }
+    public bool isLoadComplete { get { return loadingState == LoadingState.Finish; } }
 
     public GameObject uiGameObject;
     public Transform uiTransform;
@@ -53,15 +85,9 @@ public class UIBaseView : MonoBehaviour
     }
 
     //参数和接口由UI各自提供，基类不提供通用参数处理
-    public virtual void OnShow()
+    protected virtual void OnShow()
     {
-        if (loadingState == LoadingState.Loading || loadingState == LoadingState.Finish)
-            return;
-        loadingState = LoadingState.Loading;
-
-        isActive = true;
-
-        ResourceManager.LoadAsset(uiPath + uiName, LoadComplete);
+   
     }
 
 
@@ -74,7 +100,7 @@ public class UIBaseView : MonoBehaviour
         }
         InitUIGameObject(obj);
         InitView();
-        Refresh();
+        DoShowOrHide();
     }
 
     protected virtual void Refresh()
@@ -83,7 +109,7 @@ public class UIBaseView : MonoBehaviour
     protected virtual void InitView()
     { }
 
-    public virtual void OnHide()
+    protected virtual void OnHide()
     { }
 
     public void UpdateUI()
@@ -117,6 +143,22 @@ public class UIBaseView : MonoBehaviour
         if (isLoadComplete)
             uiTransform.localPosition = localPos;
     }
+
+    #region 工具函数
+
+    protected T GetComponent<T>(string path) where T : MonoBehaviour
+    {
+        var tChild = uiTransform.FindChild(path);
+        var com = tChild.GetComponent<T>();
+        return (T)com;
+    }
+
+    protected GameObject GetGameObject(string path)
+    {
+        Transform t = uiTransform.FindChild(path);
+        return ( null == t ) ? null : t.gameObject;
+    }
+    #endregion
 
 }
 
