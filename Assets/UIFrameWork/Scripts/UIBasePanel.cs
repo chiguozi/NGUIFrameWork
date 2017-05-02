@@ -24,8 +24,7 @@ public class UIBasePanel : UIBaseView
         InitUIGameObject(obj);
         _uiPanel = uiGameObject.AddMissingComponent<UIPanel>();
 
-        BoxCollider panelCollider = uiGameObject.AddMissingComponent<BoxCollider>();
-        panelCollider.center = uiBounds.center;
+        BoxCollider2D panelCollider = uiGameObject.AddMissingComponent<BoxCollider2D>();
         panelCollider.size = uiBounds.size;
 
 
